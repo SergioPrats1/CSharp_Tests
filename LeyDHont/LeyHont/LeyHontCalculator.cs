@@ -7,197 +7,193 @@ using System.Threading.Tasks;
 namespace LeyHont
 {
 
-    public struct PartidoPolitico
+    public struct PoliticalParty
     {
-        public string NombrePartido;
-        public long NumeroVotos;
-        public Boolean PasaUmbral;
-        public int NumeroEscanos;
-        //public int[] CoeficientesHont;
+        public string PartyName;
+        public long NumberOfVotes;
+        public Boolean OverThreshold;
+        public int NumberOfSeats;
     }
 
-    struct CoeficientesHont
+    struct DHontQuotients
     {
-        public string NombrePartido;
-        public double Cociente;
+        public string PartyName;
+        public double Quotient;
     }
 
     public class LeyHontCalculator
     {
-        public List<PartidoPolitico> PartidosPoliticos { get; set; }
+        public List<PoliticalParty> PoliticalParties { get; set; }
 
-        CoeficientesHont[] Coeficientes;
-        private List<CoeficientesHont> CoeficientesEscano { get; set; }
+        DHontQuotients[] Quotients;
+        private List<DHontQuotients> CoeficientesEscano { get; set; }
         
 
-        private int Escanos;
-        private float Umbral_Porc;
-        private long Censo;
-        private long VotosBlancos;
-        private long VotosNulos;
-        private long VotosValidos;
-        private long Votos;
-        private long VotosPartidos;
-        private int NumeroPartidos;
-        private int NumeroPartidosPasanUmbral;
-        private long VotosUmbral;
-        //private Boolean ResultadoCalculado;
-        private Boolean ResultadosRegistrados;
-        private double Porc_Participacion;
-        private double Porc_Votos_Validos;
+        private int Seats;
+        private float Threshold;
+        private long Census;
+        private long BlankVotes;
+        private long InvalidVotes;
+        private long ValidVotes;
+        private long Votes;
+        private long PartiesVotes;
+        private int NumParties;
+        private int NumPartiesOverThreshold;
+        private long ThresholdVotes;
+        private Boolean ResultsRegistered;
+        private double ParticipationPercentage;
+        private double ValidVotesPercentage;
 
         private long dim_array;
 
-        public LeyHontCalculator(int _Escanos, float _Umbral_Porc, long _Censo, long _VotosBlancos, long _VotosNulos)
+        public LeyHontCalculator(int _Seats, float _Threshold, long _Census, long _BlankVotes, long _InvalidVotes)
         {
-            Escanos = _Escanos;
-            Umbral_Porc = _Umbral_Porc;
-            Censo = _Censo;
-            VotosBlancos = _VotosBlancos;
-            VotosNulos = _VotosNulos;
-            VotosPartidos = 0;
-            NumeroPartidos = 0;
-            NumeroPartidosPasanUmbral = 0;
-            //ResultadoCalculado = false;
-            ResultadosRegistrados = false;
+            Seats = _Seats;
+            Threshold = _Threshold;
+            Census = _Census;
+            BlankVotes = _BlankVotes;
+            InvalidVotes = _InvalidVotes;
+            PartiesVotes = 0;
+            NumParties = 0;
+            NumPartiesOverThreshold = 0;
+            ResultsRegistered = false;
 
-            PartidosPoliticos = new List<PartidoPolitico>();
+            PoliticalParties = new List<PoliticalParty>();
         }
 
-        public String AnadePartido(string Nombre, long Votos)
+        public String AddPoliticalParty(string Nombre, long Votes)
         {
-            PartidoPolitico p = new PartidoPolitico();
+            PoliticalParty p = new PoliticalParty();
 
-            if (ResultadosRegistrados == true)
+            if (ResultsRegistered == true)
             {
-                return "Los partidos ya han sido registrados, imposible añadir más partidos.";
+                return "Parties have been registered, no more parties can be added.";
             }
 
-            p.NombrePartido = Nombre;
-            p.NumeroVotos = Votos;
-            //p.CoeficientesHont = new int[Escanos];
+            p.PartyName = Nombre;
+            p.NumberOfVotes = Votes;
 
-            PartidosPoliticos.Add(p);
+            PoliticalParties.Add(p);
 
             return "";
         }
 
-        public void PartidosAnadidos()
+        public void PartiesHaveBeenAdded()
         {
-            ResultadosRegistrados = true;
+            ResultsRegistered = true;
         }
 
-    // Votos empleados para calcular el umbral de participación: votos de los partidos más votos blancos;
-        private void VotosAgregados()
+    // Votes used to get the threshold of votes: parties votes plus blank votes;
+        private void AggregatedVotes()
         {
-            VotosPartidos = 0;
-            foreach (PartidoPolitico p in PartidosPoliticos)
+            PartiesVotes = 0;
+            foreach (PoliticalParty p in PoliticalParties)
             {
-                VotosPartidos += p.NumeroVotos;
+                PartiesVotes += p.NumberOfVotes;
             }
-            VotosValidos = VotosPartidos + VotosBlancos;
-            Votos = VotosValidos + VotosNulos;
-            VotosUmbral = Convert.ToInt64 ((Umbral_Porc * VotosValidos / 100));
+            ValidVotes = PartiesVotes + BlankVotes;
+            Votes = ValidVotes + InvalidVotes;
+            ThresholdVotes = Convert.ToInt64 ((Threshold * ValidVotes / 100));
 
-            Porc_Participacion = Votos / Censo;
+            ParticipationPercentage = Math.Round( (100 * (double)Votes / (double)Census), 1, MidpointRounding.AwayFromZero);
         }
 
-        private void PartidosPasanUmbral()
+        private void PartiesOverThreshold()
         {
             int n = 0;
-            PartidoPolitico _p;
+            PoliticalParty _p;
 
-            for(n=0; n < PartidosPoliticos.Count; n++)
+            for(n=0; n < PoliticalParties.Count; n++)
             {
-                _p = PartidosPoliticos[n];
-                if (_p.NumeroVotos >= VotosUmbral)
+                _p = PoliticalParties[n];
+                if (_p.NumberOfVotes >= ThresholdVotes)
                 {
-                    _p.PasaUmbral = true;
-                    PartidosPoliticos[n] = _p;
-                    NumeroPartidosPasanUmbral += 1;
+                    _p.OverThreshold = true;
+                    PoliticalParties[n] = _p;
+                    NumPartiesOverThreshold += 1;
                 }
             }
-            // Calculamos la dimensión del array a saco, memoria no me falta :P.
-            dim_array = NumeroPartidosPasanUmbral * Escanos;
 
-            // Memoria no me falta, pero Hooligan dispuestos a petar el programa tampoco :P
+            // Let's not care to much on memory :)
+            dim_array = NumPartiesOverThreshold * Seats;
+
+            // Let's not be Hooligans :).
             if (dim_array > 1000000)
             {
                 throw new InsufficientMemoryException();
             }
-            Coeficientes = new CoeficientesHont[dim_array];
+            Quotients = new DHontQuotients[dim_array];
         }
 
-        private void CalculaCoeficientesPartidos()
+        private void PartiesDHontCoeficients()
         {
             int n;
             int m;
             long l = 0;
-            PartidoPolitico _p;
+            PoliticalParty _p;
 
-            for (n = 0; n < PartidosPoliticos.Count; n++)
+            for (n = 0; n < PoliticalParties.Count; n++)
             {
-                _p = PartidosPoliticos[n];
-                if (!_p.PasaUmbral)
+                _p = PoliticalParties[n];
+                if (!_p.OverThreshold)
                 {
                     continue;
                 }
 
-                for (m = 1; m <= Escanos; m++)
+                for (m = 1; m <= Seats; m++)
                 {
-                    Coeficientes[l].NombrePartido = _p.NombrePartido;
-                    Coeficientes[l].Cociente = Convert.ToDouble((_p.NumeroVotos / m));
+                    Quotients[l].PartyName = _p.PartyName;
+                    Quotients[l].Quotient = Convert.ToDouble((_p.NumberOfVotes / m));
                     l++;
                 }
 
             }
 
-            var CoeficientesOrdenados = Coeficientes.OrderByDescending(CoeficientesHont => CoeficientesHont.Cociente).ToList();
+            var CoeficientesOrdenados = Quotients.OrderByDescending(CoeficientesHont => CoeficientesHont.Quotient).ToList();
 
-            //CoeficientesEscano = CoeficientesOrdenados.GetRange(0,Convert.ToInt32(Escanos-1)); 
-            CoeficientesEscano = CoeficientesOrdenados.GetRange(0, Convert.ToInt32(Escanos));
+            //CoeficientesEscano = CoeficientesOrdenados.GetRange(0,Convert.ToInt32(Seats-1)); 
+            CoeficientesEscano = CoeficientesOrdenados.GetRange(0, Convert.ToInt32(Seats));
         }
 
-        private void AsignaEscanos()
+        private void AssignSeats()
         {
-            // Se que no es lo más eficiente pero me permitiré ser cafre esta vez:
+            // Not the most efficient way to do it
             int n ;
-            PartidoPolitico _p;
+            PoliticalParty _p;
 
-            for (n = 0; n < PartidosPoliticos.Count; n++)
+            for (n = 0; n < PoliticalParties.Count; n++)
             {
-                _p = PartidosPoliticos[n];
-                if (!_p.PasaUmbral)
+                _p = PoliticalParties[n];
+                if (!_p.OverThreshold)
                 {
                     continue;
                 }
-                _p.NumeroEscanos = CoeficientesEscano.Where( x => x.NombrePartido.Equals(_p.NombrePartido)).Count();
+                _p.NumberOfSeats = CoeficientesEscano.Where( x => x.PartyName.Equals(_p.PartyName)).Count();
 
-                PartidosPoliticos[n] = _p;
+                PoliticalParties[n] = _p;
             }
         }
 
-        public string CalcularResultados()
+        public string GetResults()
         {
-            if (ResultadosRegistrados == false)
+            if (ResultsRegistered == false)
             {
-                return "Termine de registrar los resultados de los partidos primero";
+                return "Please, finish first the enrollment of parties.";
             }
 
-            VotosAgregados();
+            AggregatedVotes();
 
-            PartidosPasanUmbral();
+            PartiesOverThreshold();
 
-            CalculaCoeficientesPartidos();
+            PartiesDHontCoeficients();
 
-            AsignaEscanos();
+            AssignSeats();
 
-            NumeroPartidos = PartidosPoliticos.Count;            
+            NumParties = PoliticalParties.Count;            
 
-            if (Censo > 0)
+            if (Census > 0)
             {
-                Porc_Participacion = Votos / Censo;
-                Porc_Votos_Validos = VotosValidos / Censo;
+                ValidVotesPercentage = ValidVotes / Census;
             }
 
             return "";
@@ -207,10 +203,15 @@ namespace LeyHont
         {
             string Description;
 
-            Description = "Ha habido " + Convert.ToString(Votos) + " votos sobre un censo de " + Convert.ToString(Censo) + " personas \n";
-            Description = Description + " La participación ha sido del " + Convert.ToString(Porc_Participacion) + "% \n";
-            Description = Description + " El umbral para optar a representación son " + Convert.ToString(VotosUmbral) + " votos \n";
-            Description = Description + Convert.ToString(NumeroPartidosPasanUmbral) + " Partidos han pasado el umbral mínimo de votos";
+            /*Description = "Ha habido " + Convert.ToString(Votos) + " votos sobre un censo de " + Convert.ToString(Census) + " personas \n";
+            Description = Description + "La participación ha sido del " + Convert.ToString(ParticipationPercentage) + "% \n";
+            Description = Description + "El umbral para optar a representación son " + Convert.ToString(ThresholdVotes) + " votos \n";
+            Description = Description + Convert.ToString(NumPartiesOverThreshold) + " Partidos han pasado el umbral mínimo de votos";*/
+
+            Description = "There have been " + Convert.ToString(Votes) + " on a census of " + Convert.ToString(Census) + " people \n";
+            Description = Description + "Participation has been the " + Convert.ToString(ParticipationPercentage) + "% \n";
+            Description = Description + "The threshold to get representants is " + Convert.ToString(ThresholdVotes) + " votes \n";
+            Description = Description + Convert.ToString(NumPartiesOverThreshold) + " Parties have passed the threshold of votes";
 
             return Description; 
         }

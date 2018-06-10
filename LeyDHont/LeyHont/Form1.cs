@@ -16,12 +16,12 @@ namespace LeyHont
         private int pos { get; set; }
         private int line_height { get; set; }
 
-        private int escanos;
-        private long censo;
-        private long blancos;
-        private long nulos;
-        private int num_partidos;
-        private float umbral;
+        private int seats;
+        private long census;
+        private long blanks;
+        private long invalid;
+        private int num_parties;
+        private float threshold;
 
         private LeyHontCalculator LHC;
 
@@ -38,24 +38,17 @@ namespace LeyHont
             PoliticalParties = PP;
             pos = pos + line_height;
 
-            escanos = 0;
-            censo = 0;
-            nulos = 0;
-            blancos = 0;
-            num_partidos = 0;
+            seats = 0;
+            census = 0;
+            invalid = 0;
+            blanks = 0;
+            num_parties = 0;
 
             InitializeComponent();
 
             SetControls();
         }
-
-        /*private void button1_Click(object sender, EventArgs e)
-        {
-            PoliticalPartieVisualComponent Partie = new PoliticalPartieVisualComponent(pos);
-            PoliticalParties.Add(Partie);
-            SetControls();
-            pos += line_height;
-        }*/
+ 
 
         private void AnadePartido_Click(object sender, EventArgs e)
         {
@@ -63,8 +56,6 @@ namespace LeyHont
             PoliticalParties.Add(Partie);
             SetControls();
             pos += line_height;
-            //pos += line_height;
-            //pos += line_height;
 
             if (Height < pos)
             {
@@ -102,56 +93,56 @@ namespace LeyHont
             string ErrMsg = "";
             bool result;
 
-            if (Escanos.Text == "")
+            if (tbSeats.Text == "")
             {
-                return "Informa el número de escaños a repartir";
+                return "Set the number of seats";
             }
             else
             {
-                result = Int32.TryParse(Escanos.Text, out escanos);
-                if (result == false || escanos <= 0)
+                result = Int32.TryParse(tbSeats.Text, out seats);
+                if (result == false || seats <= 0)
                 {
-                    return "El número de escaños a repartir no es válido";
+                    return "The number of seats is not valid";
                 }
             }
 
-            if (Umbral.Text == "")
+            if (tbThreshold.Text == "")
             {
-                return "Informa un umbral de votos para obtener escaños";
+                return "Set a minimmum percentage of votes (0-100)";
             }
             else
             {
-                result = float.TryParse(Umbral.Text.ToString(), out umbral);
-                if (result == false || umbral <= 0 || umbral >= 100)
+                result = float.TryParse(tbThreshold.Text.ToString(), out threshold);
+                if (result == false || threshold < 0 || threshold > 100)
                 {
-                    return "El umbral de votos para obtener escaños no es válido, debe ser un número entre 0 y 100";
+                    return "The minimmum percentage number of votes to get representation is not valid, it should be a number between 1 and 100";
                 }
             }
 
-            if (Censo.Text != "")
+            if (tbCensus.Text != "")
             {
-                result = Int64.TryParse(Censo.Text, out censo);
-                if (result == false || censo < 0)
+                result = Int64.TryParse(tbCensus.Text, out census);
+                if (result == false || census < 0)
                 {
-                    return "El número de votantes censados no es válido";
+                    return "The number of votes is not valid";
                 }
             }
 
-            if (Blancos.Text != "")
+            if (tbBlanks.Text != "")
             {
-                result = Int64.TryParse(Blancos.Text, out blancos);
-                if (result == false || blancos < 0)
+                result = Int64.TryParse(tbBlanks.Text, out blanks);
+                if (result == false || blanks < 0)
                 {
-                    return "El número de votos en blanco no es válido";
+                    return "The number of blank votes is not valid";
                 }
             }
 
-            if (Nulos.Text != "")
+            if (tbInvalids.Text != "")
             {
-                result = Int64.TryParse(Nulos.Text, out nulos);
-                if (result == false || nulos < 0)
+                result = Int64.TryParse(tbInvalids.Text, out invalid);
+                if (result == false || invalid < 0)
                 {
-                    return "El número de votos nulos no es válido";
+                    return "The number of invalid votes is not valid";
                 }
             }
 
@@ -159,16 +150,17 @@ namespace LeyHont
             {
                 if (p.CheckNumberOfVotes() == false)
                 {
-                    ErrMsg = "El número de votos \"" + p.NumberOfVotes.Text + "\" del partido " + p.PartieName.Text + " no es válido";
+                    //ErrMsg = "El número de votos \"" + p.NumberOfVotes.Text + "\" del partido " + p.PartieName.Text + " no es válido";
+                    ErrMsg = "Party " + p.PartyName.Text + " has an invalid number of votes: \"" + p.NumberOfVotes.Text + "\"";
                     break;
                 }
 
-                num_partidos += Convert.ToInt32(p.Initialized);
+                num_parties += Convert.ToInt32(p.Initialized);
             }
 
-            if (ErrMsg == ""  && num_partidos == 0)
+            if (ErrMsg == ""  && num_parties == 0)
             {
-                ErrMsg = "No se ha definido ningún partido";
+                ErrMsg = "There are no parties declared";
             }
 
             return ErrMsg;
@@ -185,18 +177,18 @@ namespace LeyHont
             {
                 if (LHC is null)
                 {
-                    LHC = new LeyHontCalculator(escanos, umbral, censo, blancos, nulos );
+                    LHC = new LeyHontCalculator(seats, threshold, census, blanks, invalid );
                     foreach (PoliticalPartieVisualComponent p in PoliticalParties.Where(p=> p.Initialized == true))
                     {
-                        LHC.AnadePartido(p._PartiName(), p._NumberOfVotes());
+                        LHC.AddPoliticalParty(p._PartiName(), p._NumberOfVotes());
                     }
-                    LHC.PartidosAnadidos();
-                    LHC.CalcularResultados();
+                    LHC.PartiesHaveBeenAdded();
+                    LHC.GetResults();
 
                     form2 = new Form2(LHC);
 
                 }
-                // Tras hacer los cálculos mostramos el resultado. 
+                // Show the result after having done the calculations. 
                 if (form2 is null)
                 { form2 = new Form2(LHC); }
                 

@@ -21,8 +21,6 @@ namespace LeyHont
 
         public Form2(LeyHontCalculator _LHC)
         {
-            string Description;
-
             PoliticalParties = new List<PoliticalPartieVisualComponentResult>();
 
             LHC = _LHC;
@@ -31,9 +29,9 @@ namespace LeyHont
             pos = 120;
             line_height = 40;
 
-            foreach (PartidoPolitico p in LHC.PartidosPoliticos)
+            foreach (PoliticalParty p in LHC.PoliticalParties)
             {
-                PoliticalPartieVisualComponentResult Partie = new PoliticalPartieVisualComponentResult(pos, p.NombrePartido, p.NumeroEscanos);
+                PoliticalPartieVisualComponentResult Partie = new PoliticalPartieVisualComponentResult(pos, p.PartyName, p.NumberOfSeats);
                 PoliticalParties.Add(Partie);
                 pos += line_height;
 
@@ -45,7 +43,7 @@ namespace LeyHont
 
             }
 
-            ResumenResultados.Text = LHC.GetGeneralComments();
+            lResultsSummary.Text = LHC.GetGeneralComments();
 
             SetControls();
         }

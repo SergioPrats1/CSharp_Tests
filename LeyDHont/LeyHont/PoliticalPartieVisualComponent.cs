@@ -10,7 +10,7 @@ namespace LeyHont
 {
     class PoliticalPartieVisualComponent
     {
-        public TextBox PartieName;
+        public TextBox PartyName;
         public TextBox NumberOfVotes;
         public Label PartieLabel;
         public Label VotesLabel;
@@ -18,7 +18,7 @@ namespace LeyHont
         private int position { get; set; }
 
         private long NumberOfVotesNum;
-        private string PartieNameStr;
+        private string PartyNameStr;
         public Boolean Initialized;
 
         public PoliticalPartieVisualComponent(int pos)
@@ -30,11 +30,11 @@ namespace LeyHont
             PartieLabel.Size = new Size( 40,  25);
             PartieLabel.Text = "Partido";
 
-            PartieName = new TextBox();
-            PartieName.Location = new Point(240, position);
-            PartieName.Size = new Size(120, 25);
-            PartieName.Text = "";
-            PartieName.Name = "Name" + position;
+            PartyName = new TextBox();
+            PartyName.Location = new Point(240, position);
+            PartyName.Size = new Size(120, 25);
+            PartyName.Text = "";
+            PartyName.Name = "Name" + position;
 
             VotesLabel = new Label();
             VotesLabel.Location = new Point(440, position);
@@ -47,7 +47,7 @@ namespace LeyHont
             NumberOfVotes.Text = "";
 
             // To identify each of the parties (each of the elements in the collection). 
-            PartieName.Name = "Name" + position;
+            PartyName.Name = "Name" + position;
 
         }
 
@@ -56,23 +56,20 @@ namespace LeyHont
             return "Name" + position;
         }
 
-        // result = falso implica que la validación ha fallado.
+        // result = false means the validation has failed.
         public bool CheckNumberOfVotes()
         {
             Boolean result = true;
             Initialized = false;
 
-            if (PartieName.Text != "")
+            if (PartyName.Text != "")
             {
-                PartieNameStr = PartieName.Text;
+                PartyNameStr = PartyName.Text;
                 Initialized = true;
                 result = Int64.TryParse(NumberOfVotes.Text, out NumberOfVotesNum);
                 if (NumberOfVotesNum < 0)
                     { result = false; } 
             }
-            //MessageBox.Show(PartieName.Text);
-            //MessageBox.Show(string.Format("{0}", NumberOfVotesInt));
-            //MessageBox.Show(result.ToString());
 
             return result;
         }
@@ -80,14 +77,14 @@ namespace LeyHont
         public void RegisterComponents(Form f)
         {
             f.Controls.Add(PartieLabel);
-            f.Controls.Add(PartieName);
+            f.Controls.Add(PartyName);
             f.Controls.Add(VotesLabel);
             f.Controls.Add(NumberOfVotes);
         }
 
         public string _PartiName()
         {
-            return PartieNameStr;
+            return PartyNameStr;
         }
 
         public long _NumberOfVotes()
