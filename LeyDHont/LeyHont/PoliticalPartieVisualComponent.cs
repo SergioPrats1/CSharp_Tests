@@ -28,7 +28,7 @@ namespace LeyHont
             PartieLabel = new Label();
             PartieLabel.Location = new Point(80, position);
             PartieLabel.Size = new Size( 40,  25);
-            PartieLabel.Text = "Partido";
+            PartieLabel.Text = "Party";
 
             PartyName = new TextBox();
             PartyName.Location = new Point(240, position);
@@ -39,7 +39,7 @@ namespace LeyHont
             VotesLabel = new Label();
             VotesLabel.Location = new Point(440, position);
             VotesLabel.Size = new Size(40, 25);
-            VotesLabel.Text = "Votos";
+            VotesLabel.Text = "Votes";
 
             NumberOfVotes = new TextBox();
             NumberOfVotes.Location = new Point(600, position);
