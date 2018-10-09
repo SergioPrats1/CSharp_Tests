@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbModelEntities.cs" />
-    <Compile Include="FeatureContext .cs" />
+    <Compile Include="FeatureContext.cs" />
     <Compile Include="Migrations\201810091017114_Initial.cs" />
     <Compile Include="Migrations\201810091017114_Initial.Designer.cs">
       <DependentUpon>201810091017114_Initial.cs</DependentUpon>
